@@ -3,18 +3,20 @@ name: Build iOS App
 on:
   push:
     branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
   workflow_dispatch:
 
 jobs:
   build_ios:
     name: Build iOS IPA
-    runs-on: macos-latest
+    runs-on: macos-13 # Explicitly use macOS 13
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Java
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
           java-version: '17'
@@ -22,20 +24,22 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.19.0' # Adjust to match your local version
+          flutter-version: '3.19.0'
           channel: 'stable'
 
       - name: Install Dependencies
         run: flutter pub get
 
-      - name: Build iOS (No Signing - for testing build only)
-        # Note: For App Store, you need to set up signing.
-        # This command builds a 'Release' mode app (Runner.app) which can be signed later 
-        # or you can configure signing secrets here.
-        run: flutter build ios --release --no-codesign
-
-      - name: Archive Production Artifacts
-        uses: actions/upload-artifact@v3
+      - name: Build iOS (No Codesign)
+        run: |
+          flutter build ios --release --no-codesign
+          cd build/ios/iphoneos
+          mkdir Payload
+          cp -r Runner.app Payload/
+          zip -r Runner.ipa Payload
+      
+      - name: Upload IPA
+        uses: actions/upload-artifact@v4
         with:
           name: ios-build
-          path: build/ios/iphoneos
+          path: build/ios/iphoneos/Runner.ipa
