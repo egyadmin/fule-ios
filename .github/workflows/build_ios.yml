@@ -30,6 +30,7 @@ jobs:
       - name: Re-create iOS Project (Clean Slate)
         run: |
           rm -rf ios
+          rm -rf android # Remove Android to avoid "v1 embedding" errors during pub get
           flutter create . --platforms ios --project-name fuel_management
           
       - name: Apply Signing Hack & Update Version (Dynamic)
