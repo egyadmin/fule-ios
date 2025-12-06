@@ -10,7 +10,7 @@ on:
 jobs:
   build_ios:
     name: Build iOS IPA
-    runs-on: macos-13 # Explicitly use macOS 13
+    runs-on: macos-latest # Use latest stable macOS (14/15)
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -27,8 +27,11 @@ jobs:
           flutter-version: '3.19.0'
           channel: 'stable'
 
-      - name: Install Dependencies
-        run: flutter pub get
+      - name: Initialize Flutter & Pods
+        run: |
+          flutter create . --platforms ios
+          flutter pub get
+
 
       - name: Disable Signing (Hack for CI)
         run: |
