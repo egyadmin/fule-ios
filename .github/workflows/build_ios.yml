@@ -46,19 +46,19 @@ jobs:
           # Get dependencies in clean workspace
           flutter pub get
 
-      - name: Build iOS (No Codesign)
+      - name: Build iOS for Simulator (No Signing Required)
         run: |
           cd clean_workspace
-          flutter build ios --release --no-codesign
+          flutter build ios --release --simulator
           
-          # Package IPA
-          cd build/ios/iphoneos
+          # Package the simulator app
+          cd build/ios/iphonesimulator
           mkdir Payload
           cp -r Runner.app Payload/
-          zip -r Runner.ipa Payload
+          zip -r Runner-Simulator.app.zip Payload
       
-      - name: Upload IPA
+      - name: Upload Simulator Build
         uses: actions/upload-artifact@v4
         with:
-          name: ios-build
-          path: clean_workspace/build/ios/iphoneos/Runner.ipa
+          name: ios-simulator-build
+          path: clean_workspace/build/ios/iphonesimulator/Runner-Simulator.app.zip
