@@ -30,6 +30,12 @@ jobs:
       - name: Install Dependencies
         run: flutter pub get
 
+      - name: Disable Signing (Hack for CI)
+        run: |
+          sed -i '' 's/CODE_SIGNING_ALLOWED = YES/CODE_SIGNING_ALLOWED = NO/g' ios/Runner.xcodeproj/project.pbxproj
+          sed -i '' 's/CODE_SIGNING_REQUIRED = YES/CODE_SIGNING_REQUIRED = NO/g' ios/Runner.xcodeproj/project.pbxproj
+          sed -i '' 's/DevelopmentTeam = .*/DevelopmentTeam = "";/g' ios/Runner.xcodeproj/project.pbxproj
+
       - name: Build iOS (No Codesign)
         run: |
           flutter build ios --release --no-codesign
