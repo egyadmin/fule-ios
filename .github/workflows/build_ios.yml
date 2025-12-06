@@ -29,17 +29,9 @@ jobs:
 
       - name: Initialize Flutter & Pods
         run: |
-          flutter create . --platforms ios
+          flutter create . --platforms ios --project-name fuel_management
           flutter pub get
 
-
-      - name: Disable Signing (Hack for CI)
-        run: |
-          sed -i '' 's/"CODE_SIGN_IDENTITY\[sdk=iphoneos\*\]" = "iPhone Developer";/"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";/g' ios/Runner.xcodeproj/project.pbxproj
-          sed -i '' 's/CODE_SIGNING_ALLOWED = YES/CODE_SIGNING_ALLOWED = NO/g' ios/Runner.xcodeproj/project.pbxproj
-          sed -i '' 's/CODE_SIGNING_REQUIRED = YES/CODE_SIGNING_REQUIRED = NO/g' ios/Runner.xcodeproj/project.pbxproj
-          sed -i '' 's/CODE_SIGNING_STYLE = Automatic/CODE_SIGNING_STYLE = Manual/g' ios/Runner.xcodeproj/project.pbxproj
-      
       - name: Build iOS (No Codesign)
         run: |
           flutter build ios --release --no-codesign
