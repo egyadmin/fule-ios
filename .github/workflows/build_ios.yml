@@ -27,28 +27,31 @@ jobs:
           flutter-version: '3.19.0'
           channel: 'stable'
 
-      - name: Re-create iOS Project (Clean Slate)
+      - name: Prepare Clean Build Environment
         run: |
-          rm -rf ios
-          rm -rf android # Remove Android to avoid "v1 embedding" errors during pub get
-          flutter create . --platforms ios --project-name fuel_management
+          mkdir clean_workspace
+          cp -r lib clean_workspace/
+          cp pubspec.yaml clean_workspace/
+          if [ -d "assets" ]; then cp -r assets clean_workspace/; fi
           
-      - name: Apply Signing Hack & Update Version (Dynamic)
-        run: |
-          # Disable Signing
+          cd clean_workspace
+          flutter create . --project-name fuel_management
+          
+          # Fix iOS Version & Signing (in the new clean project)
           echo "CODE_SIGNING_ALLOWED=NO" >> ios/Flutter/Release.xcconfig
           echo "CODE_SIGNING_REQUIRED=NO" >> ios/Flutter/Release.xcconfig
           echo "CODE_SIGN_IDENTITY=" >> ios/Flutter/Release.xcconfig
-          
-          # Force iOS 13.0 Deployment Target (Fix for connectivity_plus)
           sed -i '' 's/IPHONEOS_DEPLOYMENT_TARGET = [0-9.]*/IPHONEOS_DEPLOYMENT_TARGET = 13.0/g' ios/Runner.xcodeproj/project.pbxproj
-
-      - name: Install Dependencies
-        run: flutter pub get
+          
+          # Get dependencies in clean workspace
+          flutter pub get
 
       - name: Build iOS (No Codesign)
         run: |
+          cd clean_workspace
           flutter build ios --release --no-codesign
+          
+          # Package IPA
           cd build/ios/iphoneos
           mkdir Payload
           cp -r Runner.app Payload/
@@ -58,4 +61,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ios-build
-          path: build/ios/iphoneos/Runner.ipa
+          path: clean_workspace/build/ios/iphoneos/Runner.ipa
