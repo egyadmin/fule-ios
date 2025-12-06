@@ -32,11 +32,15 @@ jobs:
           rm -rf ios
           flutter create . --platforms ios --project-name fuel_management
           
-      - name: Apply Signing Hack (Dynamic)
+      - name: Apply Signing Hack & Update Version (Dynamic)
         run: |
+          # Disable Signing
           echo "CODE_SIGNING_ALLOWED=NO" >> ios/Flutter/Release.xcconfig
           echo "CODE_SIGNING_REQUIRED=NO" >> ios/Flutter/Release.xcconfig
           echo "CODE_SIGN_IDENTITY=" >> ios/Flutter/Release.xcconfig
+          
+          # Force iOS 13.0 Deployment Target (Fix for connectivity_plus)
+          sed -i '' 's/IPHONEOS_DEPLOYMENT_TARGET = [0-9.]*/IPHONEOS_DEPLOYMENT_TARGET = 13.0/g' ios/Runner.xcodeproj/project.pbxproj
 
       - name: Install Dependencies
         run: flutter pub get
