@@ -27,10 +27,19 @@ jobs:
           flutter-version: '3.19.0'
           channel: 'stable'
 
-      - name: Initialize Flutter & Pods
+      - name: Re-create iOS Project (Clean Slate)
         run: |
+          rm -rf ios
           flutter create . --platforms ios --project-name fuel_management
-          flutter pub get
+          
+      - name: Apply Signing Hack (Dynamic)
+        run: |
+          echo "CODE_SIGNING_ALLOWED=NO" >> ios/Flutter/Release.xcconfig
+          echo "CODE_SIGNING_REQUIRED=NO" >> ios/Flutter/Release.xcconfig
+          echo "CODE_SIGN_IDENTITY=" >> ios/Flutter/Release.xcconfig
+
+      - name: Install Dependencies
+        run: flutter pub get
 
       - name: Build iOS (No Codesign)
         run: |
